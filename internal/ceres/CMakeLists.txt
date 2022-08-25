@@ -214,12 +214,9 @@ add_library(ceres ${CERES_LIBRARY_SOURCE})
 set_target_properties(ceres PROPERTIES
   VERSION ${CERES_VERSION}
   SOVERSION ${CERES_VERSION_MAJOR})
-if(NOT BUILD_SHARED_LIBS AND DEFINED ver)
-  target_include_directories(ceres PUBLIC $<INSTALL_INTERFACE:$<INSTALL_PREFIX>/include${verDir}>)
-  if (MINIGLOG)
-    target_include_directories(ceres PUBLIC $<INSTALL_INTERFACE:$<INSTALL_PREFIX>/include${verDir}/ceres/internal/miniglog>)
-  endif()
-  set_target_properties(ceres PROPERTIES OUTPUT_NAME ceres${ver})
+target_include_directories(ceres PUBLIC $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
+if (MINIGLOG)
+  target_include_directories(ceres PUBLIC $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/ceres/internal/miniglog>)
 endif()
 
 include(AppendTargetProperty)
@@ -262,9 +259,9 @@ endif (BUILD_SHARED_LIBS)
 
 install(TARGETS ceres
         EXPORT  CeresExport
-        RUNTIME DESTINATION bin
-        LIBRARY DESTINATION lib${LIB_SUFFIX}
-        ARCHIVE DESTINATION lib${LIB_SUFFIX})
+        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
 if (BUILD_TESTING AND GFLAGS)
   add_library(gtest gmock_gtest_all.cc gmock_main.cc)

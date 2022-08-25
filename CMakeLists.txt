@@ -85,14 +85,7 @@ read_ceres_version_from_source(${Ceres_SOURCE_DIR})
 
 # externpro
 include(flags OPTIONAL) # overwrites POSTFIX defines
-
-if(DEFINED CERES_VER)
-  if(NOT ${CERES_VER} STREQUAL ${CERES_VERSION})
-    message(AUTHOR_WARNING "version passed in (${CERES_VER}) doesn't match version from ${CERES_VERSION_FILE} (${CERES_VERSION})")
-  endif()
-  set(ver _${CERES_VERSION})
-  set(verDir /ceres${ver})
-endif()
+include(GNUInstallDirs)
 
 enable_testing()
 
@@ -829,21 +822,21 @@ endif (BUILD_EXAMPLES)
 
 # Setup installation of Ceres public headers.
 file(GLOB CERES_HDRS ${Ceres_SOURCE_DIR}/include/ceres/*.h)
-install(FILES ${CERES_HDRS} DESTINATION include${verDir}/ceres)
+install(FILES ${CERES_HDRS} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/ceres)
 
 file(GLOB CERES_PUBLIC_INTERNAL_HDRS ${Ceres_SOURCE_DIR}/include/ceres/internal/*.h)
-install(FILES ${CERES_PUBLIC_INTERNAL_HDRS} DESTINATION include${verDir}/ceres/internal)
+install(FILES ${CERES_PUBLIC_INTERNAL_HDRS} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/ceres/internal)
 
 # Also setup installation of Ceres config.h configured with the current
 # build options into the installed headers directory.
 install(FILES ${Ceres_BINARY_DIR}/config/ceres/internal/config.h
-        DESTINATION include${verDir}/ceres/internal)
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/ceres/internal)
 
 if (MINIGLOG)
   # Install miniglog header if being used as logging #includes appear in
   # installed public Ceres headers.
   install(FILES ${Ceres_SOURCE_DIR}/internal/ceres/miniglog/glog/logging.h
-          DESTINATION include${verDir}/ceres/internal/miniglog/glog)
+          DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/ceres/internal/miniglog/glog)
 endif (MINIGLOG)
 
 # Ceres supports two mechanisms by which it can be detected & imported into
@@ -882,8 +875,8 @@ configure_file("${Ceres_SOURCE_DIR}/cmake/CeresConfigVersion.cmake.in"
 
 # Set the install path for the installed CeresConfig.cmake configuration file
 # relative to CMAKE_INSTALL_PREFIX.
-if (DEFINED verDir)
-  set(RELATIVE_CMAKECONFIG_INSTALL_DIR lib${LIB_SUFFIX}/cmake${verDir})
+if (DEFINED CMAKE_INSTALL_LIBDIR)
+  set(RELATIVE_CMAKECONFIG_INSTALL_DIR ${CMAKE_INSTALL_LIBDIR}/cmake/Ceres)
 else ()
   if (WIN32)
     set(RELATIVE_CMAKECONFIG_INSTALL_DIR CMake)
