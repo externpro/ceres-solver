@@ -875,8 +875,8 @@ configure_file("${Ceres_SOURCE_DIR}/cmake/CeresConfigVersion.cmake.in"
 
 # Set the install path for the installed CeresConfig.cmake configuration file
 # relative to CMAKE_INSTALL_PREFIX.
-if (DEFINED CMAKE_INSTALL_LIBDIR)
-  set(RELATIVE_CMAKECONFIG_INSTALL_DIR ${CMAKE_INSTALL_LIBDIR}/cmake/Ceres)
+if(DEFINED XP_INSTALL_CMAKEDIR)
+  set(RELATIVE_CMAKECONFIG_INSTALL_DIR ${XP_INSTALL_CMAKEDIR})
 else ()
   if (WIN32)
     set(RELATIVE_CMAKECONFIG_INSTALL_DIR CMake)
