@@ -29,7 +29,7 @@
 # Authors: keir@google.com (Keir Mierle)
 #          alexs.mac@gmail.com (Alex Stewart)
 
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 2.8.0...3.31)
 cmake_policy(VERSION 3.5)
 
 project(Ceres C CXX)
@@ -84,7 +84,7 @@ include(ReadCeresVersionFromSource)
 read_ceres_version_from_source(${Ceres_SOURCE_DIR})
 
 # externpro
-include(flags OPTIONAL) # overwrites POSTFIX defines
+include(xpflags) # overwrites POSTFIX defines
 include(GNUInstallDirs)
 
 enable_testing()
