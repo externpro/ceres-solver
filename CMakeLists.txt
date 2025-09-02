@@ -29,7 +29,7 @@
 # Authors: keir@google.com (Keir Mierle)
 #          alexs.mac@gmail.com (Alex Stewart)
 
-cmake_minimum_required(VERSION 3.16...3.27)
+cmake_minimum_required(VERSION 3.16...3.31)
 
 # On macOS, add the Homebrew prefix (with appropriate suffixes) to the
 # respective HINTS directories (after any user-specified locations).  This
@@ -51,6 +51,7 @@ if (CMAKE_SYSTEM_NAME MATCHES "Darwin")
   endif()
 endif()
 
+set(CMAKE_PROJECT_TOP_LEVEL_INCLUDES .devcontainer/cmake/xproinc.cmake)
 project(Ceres C CXX)
 
 # NOTE: The following CMake variables must be applied consistently to all
@@ -109,6 +110,9 @@ set(CMAKE_DEBUG_POSTFIX "-debug")
 # definition of the Ceres version.
 include(ReadCeresVersionFromSource)
 read_ceres_version_from_source(${Ceres_SOURCE_DIR})
+
+# externpro
+include(xpflags) # TRICKY: overwrites set(CMAKE_[RELEASE|DEBUG]_POSTFIX]) above
 
 enable_testing()
 
@@ -182,6 +186,10 @@ unset(CERES_COMPILE_OPTIONS)
 
 # Eigen.
 # Eigen delivers Eigen3Config.cmake since v3.3.3
+if(COMMAND xpFindPkg)
+  xpFindPkg(PKGS eigen)
+  set(Eigen3_DIR ${xpuse-eigen_DIR})
+endif()
 find_package(Eigen3 3.3 REQUIRED)
 if (Eigen3_FOUND)
   message("-- Found Eigen version ${Eigen3_VERSION}: ${Eigen3_DIR}")
@@ -283,9 +291,28 @@ else (LAPACK)
   list(APPEND CERES_COMPILE_OPTIONS CERES_NO_LAPACK)
 endif (LAPACK)
 
+function(callPackageDevel)
+  string(JOIN "\n" EXT1
+    "set(THREAD_PREFER_PTHREAD_FLAG ON)"
+    "find_package(Threads REQUIRED) # depends on Threads::Threads"
+    ""
+  )
+  set(XP_INSTALL_CMAKEDIR ${RELATIVE_CMAKECONFIG_INSTALL_DIR})
+  set(CMAKE_PROJECT_NAME ceres-solver)
+  xpPackageDevel(TARGETS_FILE CeresTargets DEPS eigen LIBRARIES ${Ceres_NAMESPACE}ceres)
+endfunction()
+
+if(DEFINED XP_NAMESPACE)
+  set(Ceres_NAMESPACE "${XP_NAMESPACE}::")
+  set(RELATIVE_CMAKECONFIG_INSTALL_DIR "${CMAKE_INSTALL_DATADIR}/cmake")
+  callPackageDevel()
+  set(CMAKE_INSTALL_DEFAULT_COMPONENT_NAME devel)
+else()
+  set(Ceres_NAMESPACE "Ceres::")
 # Set the install path for the installed CeresConfig.cmake configuration file
 # relative to CMAKE_INSTALL_PREFIX.
 set(RELATIVE_CMAKECONFIG_INSTALL_DIR ${CMAKE_INSTALL_LIBDIR}/cmake/Ceres)
+endif()
 
 if (SUITESPARSE)
   # By default, if SuiteSparse and all dependencies are found, Ceres is
@@ -692,7 +719,7 @@ write_basic_package_version_file("${Ceres_BINARY_DIR}/CeresConfigVersion.cmake"
 # imported library targets for Ceres (with dependency relations) which can be
 # used in target_link_libraries() calls in the client project to use Ceres.
 install(EXPORT CeresExport
-        NAMESPACE Ceres::
+        NAMESPACE ${Ceres_NAMESPACE}
         DESTINATION ${RELATIVE_CMAKECONFIG_INSTALL_DIR} FILE CeresTargets.cmake)
 
 # Save the relative path from the installed CeresConfig.cmake file to the
@@ -762,7 +789,7 @@ if (EXPORT_BUILD_DIR)
   # Analogously to install(EXPORT ...), export the Ceres target from the build
   # directory as a package called Ceres into the local CMake package registry.
   export(TARGETS ${Ceres_EXPORT_TARGETS}
-         NAMESPACE Ceres::
+         NAMESPACE ${Ceres_NAMESPACE}
          FILE ${Ceres_BINARY_DIR}/CeresTargets.cmake)
   export(PACKAGE ${CMAKE_PROJECT_NAME})
 

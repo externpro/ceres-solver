@@ -341,7 +341,11 @@ target_include_directories(ceres
 # warnings around the #include statements for Eigen headers across all GCC/Clang
 # versions, we tell CMake to treat Eigen headers as system headers.  This
 # results in all compiler warnings from them being suppressed.
+if(TARGET Eigen3::Eigen)
 target_link_libraries(ceres PUBLIC Eigen3::Eigen)
+elseif(TARGET ${EIGEN_LIBRARIES})
+  target_link_libraries(ceres PUBLIC ${EIGEN_LIBRARIES})
+endif()
 
 # Gather the list of public & private include locations for all enabled optional
 # dependencies to be added to the Ceres target.
