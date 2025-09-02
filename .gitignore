@@ -25,5 +25,10 @@ bazel-*
 *.pyc
 .idea*
 
+# externpro
+.env
+_bld*/
+docker-compose.override.yml
+
 cmake-build*
 small-blas-benchmarks
