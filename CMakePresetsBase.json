@@ -8,6 +8,8 @@
       "cacheVariables": {
         "MINIGLOG": "ON",
         "GFLAGS": "OFF",
+        "ACCELERATESPARSE": "OFF",
+        "LAPACK": "OFF",
         "XP_NAMESPACE": "xpro"
       }
     }
