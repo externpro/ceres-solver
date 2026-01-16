@@ -288,24 +288,18 @@ else (LAPACK)
   list(APPEND CERES_COMPILE_OPTIONS CERES_NO_LAPACK)
 endif (LAPACK)
 
-function(callPackageDevel)
-  string(JOIN "\n" EXT1
-    "set(THREAD_PREFER_PTHREAD_FLAG ON)"
-    "find_package(Threads REQUIRED) # depends on Threads::Threads"
-    ""
-  )
-  set(XP_INSTALL_CMAKEDIR ${RELATIVE_CMAKECONFIG_INSTALL_DIR})
-  set(CMAKE_PROJECT_NAME ceres-solver)
-  xpPackageDevel(TARGETS_FILE CeresTargets DEPS eigen LIBRARIES ${Ceres_NAMESPACE}ceres)
-endfunction()
-
 if(DEFINED XP_NAMESPACE)
-  set(Ceres_NAMESPACE "${XP_NAMESPACE}::")
-  set(RELATIVE_CMAKECONFIG_INSTALL_DIR "${CMAKE_INSTALL_DATADIR}/cmake")
-  callPackageDevel()
-  set(CMAKE_INSTALL_DEFAULT_COMPONENT_NAME devel)
+  xpExternPackage(REPO_NAME ceres-solver NAMESPACE ${XP_NAMESPACE} ALIAS_NAMESPACE Ceres
+     TARGETS_FILE CeresTargets LIBRARIES ceres
+     BASE ${CERES_VERSION} XPDIFF "patch" FIND_THREADS DEPS eigen
+     WEB "http://ceres-solver.org" UPSTREAM "github.com/ceres-solver/ceres-solver"
+     DESC "C++ library for modeling and solving large, complicated optimization problems"
+     LICENSE "[BSD-3-Clause](http://ceres-solver.org/license.html 'BSD 3-Clause New or Revised License')"
+     )
+  set(CMAKE_NAMESPACE "${XP_NAMESPACE}")
+  set(RELATIVE_CMAKECONFIG_INSTALL_DIR ${XP_INSTALL_CMAKEDIR})
 else()
-  set(Ceres_NAMESPACE "Ceres::")
+  set(CMAKE_NAMESPACE "Ceres")
 # Set the install path for the installed CeresConfig.cmake configuration file
 # relative to CMAKE_INSTALL_PREFIX.
 set(RELATIVE_CMAKECONFIG_INSTALL_DIR ${CMAKE_INSTALL_LIBDIR}/cmake/Ceres)
@@ -716,7 +710,7 @@ write_basic_package_version_file("${Ceres_BINARY_DIR}/CeresConfigVersion.cmake"
 # imported library targets for Ceres (with dependency relations) which can be
 # used in target_link_libraries() calls in the client project to use Ceres.
 install(EXPORT CeresExport
-        NAMESPACE ${Ceres_NAMESPACE}
+        NAMESPACE ${CMAKE_NAMESPACE}::
         DESTINATION ${RELATIVE_CMAKECONFIG_INSTALL_DIR} FILE CeresTargets.cmake)
 
 # Save the relative path from the installed CeresConfig.cmake file to the
@@ -786,7 +780,7 @@ if (EXPORT_BUILD_DIR)
   # Analogously to install(EXPORT ...), export the Ceres target from the build
   # directory as a package called Ceres into the local CMake package registry.
   export(TARGETS ${Ceres_EXPORT_TARGETS}
-         NAMESPACE ${Ceres_NAMESPACE}
+         NAMESPACE ${CMAKE_NAMESPACE}::
          FILE ${Ceres_BINARY_DIR}/CeresTargets.cmake)
   export(PACKAGE ${CMAKE_PROJECT_NAME})
 
