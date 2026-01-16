@@ -111,9 +111,6 @@ set(CMAKE_DEBUG_POSTFIX "-debug")
 include(ReadCeresVersionFromSource)
 read_ceres_version_from_source(${Ceres_SOURCE_DIR})
 
-# externpro
-include(xpflags) # TRICKY: overwrites set(CMAKE_[RELEASE|DEBUG]_POSTFIX]) above
-
 enable_testing()
 
 include(CMakeDependentOption)
@@ -186,8 +183,8 @@ unset(CERES_COMPILE_OPTIONS)
 
 # Eigen.
 # Eigen delivers Eigen3Config.cmake since v3.3.3
-if(COMMAND xpFindPkg)
-  xpFindPkg(PKGS eigen)
+if(COMMAND xpFindPkg) # externpro dependency provider
+  find_package(eigen)
   set(Eigen3_DIR ${xpuse-eigen_DIR})
 endif()
 find_package(Eigen3 3.3 REQUIRED)
