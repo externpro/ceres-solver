@@ -297,7 +297,7 @@ if(DEFINED XP_NAMESPACE)
      LICENSE "[BSD-3-Clause](http://ceres-solver.org/license.html 'BSD 3-Clause New or Revised License')"
      )
   set(CMAKE_NAMESPACE "${XP_NAMESPACE}")
-  set(RELATIVE_CMAKECONFIG_INSTALL_DIR ${XP_INSTALL_CMAKEDIR})
+  set(RELATIVE_CMAKECONFIG_INSTALL_DIR ${CMAKE_INSTALL_CMAKEDIR})
 else()
   set(CMAKE_NAMESPACE "Ceres")
 # Set the install path for the installed CeresConfig.cmake configuration file
