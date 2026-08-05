@@ -10,7 +10,7 @@
         "GFLAGS": "OFF",
         "ACCELERATESPARSE": "OFF",
         "LAPACK": "OFF",
-        "XP_NAMESPACE": "xpro"
+        "CMAKE_EXPERIMENTAL_GENERATE_SBOM": "ca494ed3-b261-4205-a01f-603c95e4cae0"
       }
     }
   ],

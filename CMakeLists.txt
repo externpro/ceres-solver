@@ -29,7 +29,7 @@
 # Authors: keir@google.com (Keir Mierle)
 #          alexs.mac@gmail.com (Alex Stewart)
 
-cmake_minimum_required(VERSION 3.16...3.31)
+cmake_minimum_required(VERSION 3.16...4.3)
 
 # On macOS, add the Homebrew prefix (with appropriate suffixes) to the
 # respective HINTS directories (after any user-specified locations).  This
@@ -51,7 +51,6 @@ if (CMAKE_SYSTEM_NAME MATCHES "Darwin")
   endif()
 endif()
 
-set(CMAKE_PROJECT_TOP_LEVEL_INCLUDES .devcontainer/cmake/xproinc.cmake)
 project(Ceres C CXX)
 
 # NOTE: The following CMake variables must be applied consistently to all
@@ -183,10 +182,6 @@ unset(CERES_COMPILE_OPTIONS)
 
 # Eigen.
 # Eigen delivers Eigen3Config.cmake since v3.3.3
-if(COMMAND xpFindPkg) # externpro dependency provider
-  find_package(eigen)
-  set(Eigen3_DIR ${xpuse-eigen_DIR})
-endif()
 find_package(Eigen3 3.3 REQUIRED)
 if (Eigen3_FOUND)
   message("-- Found Eigen version ${Eigen3_VERSION}: ${Eigen3_DIR}")
@@ -288,18 +283,10 @@ else (LAPACK)
   list(APPEND CERES_COMPILE_OPTIONS CERES_NO_LAPACK)
 endif (LAPACK)
 
-if(DEFINED XP_NAMESPACE)
-  xpExternPackage(REPO_NAME ceres-solver NAMESPACE ${XP_NAMESPACE} ALIAS_NAMESPACE Ceres
-     TARGETS_FILE CeresTargets LIBRARIES ceres
-     BASE ${CERES_VERSION} XPDIFF "patch" FIND_THREADS DEPS eigen
-     WEB "http://ceres-solver.org" UPSTREAM "github.com/ceres-solver/ceres-solver"
-     DESC "C++ library for modeling and solving large, complicated optimization problems"
-     LICENSE "[BSD-3-Clause](http://ceres-solver.org/license.html 'BSD 3-Clause New or Revised License')"
-     )
-  set(CMAKE_NAMESPACE "${XP_NAMESPACE}")
+if(COMMAND xpExternPackage)
+  set(CMAKE_INSTALL_CMAKEDIR ${CMAKE_INSTALL_DATADIR}/cmake)
   set(RELATIVE_CMAKECONFIG_INSTALL_DIR ${CMAKE_INSTALL_CMAKEDIR})
 else()
-  set(CMAKE_NAMESPACE "Ceres")
 # Set the install path for the installed CeresConfig.cmake configuration file
 # relative to CMAKE_INSTALL_PREFIX.
 set(RELATIVE_CMAKECONFIG_INSTALL_DIR ${CMAKE_INSTALL_LIBDIR}/cmake/Ceres)
@@ -646,6 +633,20 @@ if (BUILD_EXAMPLES)
 else (BUILD_EXAMPLES)
   message("-- Do not build any example.")
 endif (BUILD_EXAMPLES)
+
+if(COMMAND xpExternPackage)
+  xpExternPackage(REPO_NAME ceres-solver ALIAS_NAMESPACE Ceres
+     TARGETS_FILE CeresTargets EXPORT CeresExport
+     LIBRARIES ceres DEFAULT_TARGETS ceres
+     BASE ${CERES_VERSION} XPDIFF "patch"
+     WEB "http://ceres-solver.org" UPSTREAM "github.com/ceres-solver/ceres-solver"
+     DESC "C++ library for modeling and solving large, complicated optimization problems"
+     LICENSE "[BSD-3-Clause](http://ceres-solver.org/license.html 'BSD 3-Clause New or Revised License')"
+     )
+  set(CMAKE_NAMESPACE ceres-solver)
+else()
+  set(CMAKE_NAMESPACE Ceres)
+endif()
 
 # Setup installation of Ceres public headers.
 file(GLOB CERES_HDRS ${Ceres_SOURCE_DIR}/include/ceres/*.h)
